@@ -1,7 +1,12 @@
-const routes = require("express").Router();
+const routes = require('express').Router();
+exports.routes = routes;
+const jotgles = require('../controllers/jotgles')
 
-routes.get("/jotgles", (req,res) => {
-  res.status(200).send({messgae: "Jotgles fetched successfully!"})
-});
 
-exports.routes= routes;
+router.post('/jotgles', jotgles.createJotgle);
+router.get('/jotgles', jotgles.getJotgles);
+router.get('/jotgles/:id',jotgles.getAJotgle);
+router.delete('/jotgles/:id', jotgles.deleteJotgle);
+router.patch('/jotgles/:id', jotgles.updateJotgle);
+
+module.exports = router;

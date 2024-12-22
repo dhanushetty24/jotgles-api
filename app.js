@@ -4,6 +4,7 @@ const { routes } = require('./src/routes/routes');
 require('dotenv').config();
 const PORT = process.env.PORT || 8080;
 const { connectDB } = require('./src/config/dBConfig');
+require('./src/models/jotgle.schema');
 
 //Handles routes in the app
 app.use('/api', routes);
