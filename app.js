@@ -6,6 +6,8 @@ const PORT = process.env.PORT || 8080;
 const { connectDB } = require('./src/config/dBConfig');
 require('./src/models/jotgle.schema');
 
+app.use(express.json());
+
 //Handles routes in the app
 app.use('/api', routes);
 

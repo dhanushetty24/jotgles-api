@@ -4,7 +4,7 @@ const Joi = require('joi');
 //Create a new jotgle
 exports.createJotgle = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, content } = req.body;
 
     const schema = Joi.object().keys({
       title: Joi.string()
@@ -16,7 +16,7 @@ exports.createJotgle = async (req, res) => {
             'Input must be a string between 5 and 50 characters long, and cannot be empty.'
           )
         ),
-      description: Joi.string()
+      content: Joi.string()
         .max(500)
         .error(
           new Error('Input must be a string less than 500 characters long.')
@@ -25,7 +25,7 @@ exports.createJotgle = async (req, res) => {
 
     const result = schema.validate({
       title,
-      description,
+      content,
     });
 
     if (result.error) {
@@ -37,11 +37,9 @@ exports.createJotgle = async (req, res) => {
     const JotgleModel = mongoose.model('jotgle');
     const jotgle = new JotgleModel({
       title,
-      description,
+      content,
     });
-    console.log('your log => ~ exports.createJotgle= ~ jotgle:', jotgle);
     await jotgle.save();
-    console.log('your log => ~ exports.createJotgle= ~ jotgle:', jotgle);
 
     return res.status(201).send({
       jotgle,
@@ -57,8 +55,8 @@ exports.createJotgle = async (req, res) => {
 exports.getJotgles = async (req, res) => {
   try {
     const JotgleModel = mongoose.model('jotgle');
-    const response = await JotgleModel.find().lean();
-    return res.status(200).send(response);
+    const data = await JotgleModel.find({}, { title: 1, content: 1 }).lean();
+    return res.status(200).send({ data });
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: 'Internal Server Error.' });
@@ -70,12 +68,14 @@ exports.getAJotgle = async (req, res) => {
   try {
     const { id } = req.params;
     const JotgleModel = mongoose.model('jotgle');
-    const response = await JotgleModel.findById(id);
-    if (!response) {
+    const data = await JotgleModel.findById(id)
+      .select({ title: 1, content: 1 })
+      .lean();
+    if (!data) {
       return res.status(404).send({ message: 'Jotgle not found' });
     }
 
-    return res.status(200).send(response);
+    return res.status(200).send({ data });
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: 'Internal Server Error' });
@@ -85,7 +85,7 @@ exports.getAJotgle = async (req, res) => {
 //Update a jotgle
 exports.updateJotgle = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, content } = req.body;
 
     const { id } = req.params;
 
@@ -99,20 +99,20 @@ exports.updateJotgle = async (req, res) => {
               'Input must be a string between 5 and 50 characters long.'
             )
           ),
-        description: Joi.string()
+        content: Joi.string()
           .max(500)
           .error(
             new Error('Input must be a string less than 500 characters long.')
           ),
       })
-      .or('title', 'description') // Ensures at least one is required.
+      .or('title', 'content') // Ensures at least one is required.
       .error(
-        new Error("At least one of 'title' or 'description' must be provided.")
+        new Error("At least one of 'title' or 'content' must be provided.")
       );
 
     const result = schema.validate({
       title,
-      description,
+      content,
     });
 
     if (result.error) {
@@ -124,23 +124,24 @@ exports.updateJotgle = async (req, res) => {
     const JotgleModel = mongoose.model('jotgle');
 
     // Fetch the item to ensure it exists
-    const existingItem = await JotgleModel.findById(id);
+    const existingItem = await JotgleModel.findById(id)
+      .select({ _id: 1 })
+      .lean();
     if (!existingItem) {
       return res.status(404).send({ message: 'Jotgle not found.' });
     }
 
-    await mongoose.model('jotgle').findByIdAndUpdate(
-      {
-        id,
-      },
+    const updatedData = await mongoose.model('jotgle').findByIdAndUpdate(
+      id,
       {
         ...(title ? { title } : {}),
-        ...(description ? { description } : {}),
-      }
+        ...(content ? { content } : {}),
+      },
+      { new: true }
     );
 
     return res.status(200).send({
-      jotgle: existingItem,
+      data: updatedData,
       message: 'Jotgle updated successfully.',
     });
   } catch (err) {
@@ -157,7 +158,9 @@ exports.deleteJotgle = async (req, res) => {
     const JotgleModel = mongoose.model('jotgle');
 
     // Check if the item exists
-    const existingItem = await JotgleModel.findById(id);
+    const existingItem = await JotgleModel.findById(id)
+      .select({ _id: 1 })
+      .lean();
     if (!existingItem) {
       return res.status(404).send({ message: 'Jotgle not found.' });
     }
