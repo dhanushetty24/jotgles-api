@@ -5,8 +5,13 @@ require('dotenv').config();
 const PORT = process.env.PORT || 8080;
 const { connectDB } = require('./src/config/dBConfig');
 require('./src/models/jotgle.schema');
+const cors = require('cors');
 
+//Middleware
 app.use(express.json());
+
+//CORS
+app.use(cors());
 
 //Handles routes in the app
 app.use('/api', routes);

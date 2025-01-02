@@ -17,6 +17,8 @@ exports.createJotgle = async (req, res) => {
           )
         ),
       content: Joi.string()
+        .optional()
+        .empty('')
         .max(500)
         .error(
           new Error('Input must be a string less than 500 characters long.')
@@ -42,7 +44,11 @@ exports.createJotgle = async (req, res) => {
     await jotgle.save();
 
     return res.status(201).send({
-      jotgle,
+      jotgle: {
+        title: jotgle.title,
+        content: jotgle.content,
+        _id: jotgle._id,
+      },
       message: 'Jotgle created successfully.',
     });
   } catch (err) {
@@ -141,7 +147,11 @@ exports.updateJotgle = async (req, res) => {
     );
 
     return res.status(200).send({
-      data: updatedData,
+      data: {
+        _id: updatedData._id,
+        title: updatedData.title,
+        content: updatedData.content,
+      },
       message: 'Jotgle updated successfully.',
     });
   } catch (err) {
