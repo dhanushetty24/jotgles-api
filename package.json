@@ -4,6 +4,7 @@
   "description": "API service for Note-worthy app",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "author": "Dhanush Shetty",
