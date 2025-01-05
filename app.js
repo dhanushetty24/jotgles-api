@@ -12,9 +12,11 @@ const helmet = require('helmet');
 app.use(express.json());
 
 //CORS
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = ['http://localhost:3000', 'https://prd.df3h378o548vc.amplifyapp.com/'];
 app.use(cors({
   origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
   credentials: true, // If you plan to use cookies later
 }));
 
