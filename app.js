@@ -11,14 +11,28 @@ const helmet = require('helmet');
 //Middleware
 app.use(express.json());
 
-//CORS
-const allowedOrigins = ['http://localhost:3000', 'https://prd.df3h378o548vc.amplifyapp.com/'];
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
-  credentials: true, // If you plan to use cookies later
-}));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://note-worthy.s3-website.ap-south-1.amazonaws.com',
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'userId'],
+    credentials: true,
+  })
+);
+
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(helmet());
 
